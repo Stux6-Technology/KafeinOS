@@ -1,6 +1,9 @@
-; ==================================================================
-; MikeOS -- The Mike Operating System kernel
-; Copyright (C) 2006 - 2019 MikeOS Developers -- see doc/LICENSE.TXT
+
+
+; KafeinOS - Stux6 KafeinOS Project
+; Copyright (C) 2024 - 2026 Stux6 Technology Team
+; by: 2026 Alperen ERKAN <erkanalperen43 [at] gmail.com>
+
 ;
 ; COMMAND LINE INTERFACE
 ; ==================================================================
@@ -962,7 +965,7 @@ exit:
 	exists_msg		db 'Target file already exists!', 13, 10, 0
 	finished_msg		db '>>> Program finished, press any key to continue...', 0
 
-	version_msg		db 'MikeOS ', MIKEOS_VER, 13, 10, 0
+	version_msg		db 'KafeinOS ', KAFEINOS_VER, 13, 10, 0
 
 	exit_string		db 'EXIT', 0
 	help_string		db 'HELP', 0
