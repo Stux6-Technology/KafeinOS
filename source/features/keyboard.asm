@@ -35,10 +35,10 @@ os_check_for_key:
 	pusha
 
 	mov ax, 0
-	mov ah, 1			; BIO
-	int 16hS call to check for key
+    mov ah, 1           ; BIOS call to check for key
+    int 16h
 
-	jz .nokey			; If no key, skip to end
+    jz .nokey           ; If no key, skip to end
 
 	mov ax, 0			; Otherwise get it from buffer
 	int 16h

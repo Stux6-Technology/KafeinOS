@@ -15,7 +15,7 @@
 	CPU 386				; pusha offsets depends on a 386 or better
 					; FS and GS require a 386 or better
 
-	%DEFINE KAFEINOS_VER '4.7.0'	; OS version number
+	%DEFINE KAFEINOS_VER '0.0.1'	; OS version number
 	%DEFINE KAFEINOS_API_VER 18	; API version for programs to check
 
 
@@ -199,8 +199,8 @@ option_screen:
 
 	; Data for the above code...
 
-	os_init_msg		db 'Welcome to KafeinOS', 0
-	os_version_msg		db 'Version ', KafeinOS_VER, 0
+	os_init_msg		db 'Welcome to KAFEINOS', 0
+	os_version_msg		db 'Version ', KAFEINOS_VER, 0
 
 	dialog_string_1		db 'Thanks for trying out KafeinOS!', 0
 	dialog_string_2		db 'Please select an interface: OK for the', 0

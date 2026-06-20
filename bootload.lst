@@ -1,0 +1,367 @@
+     1                                  
+     2                                  ; KafeinOS - Stux6 KafeinOS Project
+     3                                  ; Copyright (C) 2024 - 2026 Stux6 Technology Team
+     4                                  ; by: 2026 Alperen ERKAN <erkanalperen43 [at] gmail.com>
+     5                                  
+     6                                  
+     7                                  ; It scans the FAT12
+     8                                  ; floppy for KERNEL.BIN (the KafeinOS kernel), loads it and executes it.
+     9                                  ; This must grow no larger than 512 bytes (one sector), with the final
+    10                                  ; two bytes being the boot signature (AA55h). Note that in FAT12,
+    11                                  ; a cluster is the same as a sector: 512 bytes.
+    12                                  ; ==================================================================
+    13                                  
+    14                                  
+    15                                  	BITS 16
+    16                                  
+    17 00000000 EB40                    	jmp short bootloader_start	; Jump past disk description section
+    18 00000002 90                      	nop				; Pad out before disk description
+    19                                  
+    20                                  
+    21                                  ; ------------------------------------------------------------------
+    22                                  ; Disk description table, to make it a valid floppy
+    23                                  ; Note: some of these values are hard-coded in the source!
+    24                                  ; Values are those used by IBM for 1.44 MB, 3.5" diskette
+    25                                  
+    26 00000003 4B414645494E424F4F-     OEMLabel		db "KAFEINBOOT"	; Disk label
+    26 0000000C 54                 
+    27 0000000D 0002                    BytesPerSector		dw 512		; Bytes per sector
+    28 0000000F 01                      SectorsPerCluster	db 1		; Sectors per cluster
+    29 00000010 0100                    ReservedForBoot		dw 1		; Reserved sectors for boot record
+    30 00000012 02                      NumberOfFats		db 2		; Number of copies of the FAT
+    31 00000013 E000                    RootDirEntries		dw 224		; Number of entries in root dir
+    32                                  					; (224 * 32 = 7168 = 14 sectors to read)
+    33 00000015 400B                    LogicalSectors		dw 2880		; Number of logical sectors
+    34 00000017 F0                      MediumByte		db 0F0h		; Medium descriptor byte
+    35 00000018 0900                    SectorsPerFat		dw 9		; Sectors per FAT
+    36 0000001A 1200                    SectorsPerTrack		dw 18		; Sectors per track (36/cylinder)
+    37 0000001C 0200                    Sides			dw 2		; Number of sides/heads
+    38 0000001E 00000000                HiddenSectors		dd 0		; Number of hidden sectors
+    39 00000022 00000000                LargeSectors		dd 0		; Number of LBA sectors
+    40 00000026 0000                    DriveNo			dw 0		; Drive No: 0
+    41 00000028 29                      Signature		db 41		; Drive signature: 41 for floppy
+    42 00000029 00000000                VolumeID		dd 00000000h	; Volume ID: any number
+    43 0000002D 4B414645494E4F5320-     VolumeLabel		db "KAFEINOS     "; Volume Label: any 11 chars
+    43 00000036 20202020           
+    44 0000003A 4641543132202020        FileSystem		db "FAT12   "	; File system type: don't change!
+    45                                  
+    46                                  
+    47                                  ; ------------------------------------------------------------------
+    48                                  ; Main bootloader code
+    49                                  
+    50                                  bootloader_start:
+    51 00000042 B8C007                  	mov ax, 07C0h			; Set up 4K of stack space above buffer
+    52 00000045 052002                  	add ax, 544			; 8k buffer = 512 paragraphs + 32 paragraphs (loader)
+    53 00000048 FA                      	cli				; Disable interrupts while changing stack
+    54 00000049 8ED0                    	mov ss, ax
+    55 0000004B BC0010                  	mov sp, 4096
+    56 0000004E FB                      	sti				; Restore interrupts
+    57                                  
+    58 0000004F B8C007                  	mov ax, 07C0h			; Set data segment to where we're loaded
+    59 00000052 8ED8                    	mov ds, ax
+    60                                  
+    61                                  	; NOTE: A few early BIOSes are reported to improperly set DL
+    62                                  
+    63 00000054 80FA00                  	cmp dl, 0
+    64 00000057 741D                    	je no_change
+    65 00000059 8816[F601]              	mov [bootdev], dl		; Save boot device number
+    66 0000005D B408                    	mov ah, 8			; Get drive parameters
+    67 0000005F CD13                    	int 13h
+    68 00000061 0F828D00                	jc fatal_disk_error
+    69 00000065 83E13F                  	and cx, 3Fh			; Maximum sector number
+    70 00000068 890E[1A00]              	mov [SectorsPerTrack], cx	; Sector numbers start at 1
+    71 0000006C 0FB6D6                  	movzx dx, dh			; Maximum head number
+    72 0000006F 83C201                  	add dx, 1			; Head numbers start at 0 - add 1 for total
+    73 00000072 8916[1C00]              	mov [Sides], dx
+    74                                  
+    75                                  no_change:
+    76 00000076 66B800000000            	mov eax, 0			; Needed for some older BIOSes
+    77                                  
+    78                                  
+    79                                  ; First, we need to load the root directory from the disk. Technical details:
+    80                                  ; Start of root = ReservedForBoot + NumberOfFats * SectorsPerFat = logical 19
+    81                                  ; Number of root = RootDirEntries * 32 bytes/entry / 512 bytes/sector = 14
+    82                                  ; Start of user data = (start of root) + (number of root) = logical 33
+    83                                  
+    84                                  floppy_ok:				; Ready to read first block of data
+    85 0000007C B81300                  	mov ax, 19			; Root dir starts at logical sector 19
+    86 0000007F E80901                  	call l2hts
+    87                                  
+    88 00000082 BE[0002]                	mov si, buffer			; Set ES:BX to point to our buffer (see end of code)
+    89 00000085 8CDB                    	mov bx, ds
+    90 00000087 8EC3                    	mov es, bx
+    91 00000089 89F3                    	mov bx, si
+    92                                  
+    93 0000008B B402                    	mov ah, 2			; Params for int 13h: read floppy sectors
+    94 0000008D B00E                    	mov al, 14			; And read 14 of them
+    95                                  
+    96 0000008F 60                      	pusha				; Prepare to enter loop
+    97                                  
+    98                                  
+    99                                  read_root_dir:
+   100 00000090 61                      	popa				; In case registers are altered by int 13h
+   101 00000091 60                      	pusha
+   102                                  
+   103 00000092 F9                      	stc				; A few BIOSes do not set properly on error
+   104 00000093 CD13                    	int 13h				; Read sectors using BIOS
+   105                                  
+   106 00000095 7308                    	jnc search_dir			; If read went OK, skip ahead
+   107 00000097 E8E200                  	call reset_floppy		; Otherwise, reset floppy controller and try again
+   108 0000009A 73F4                    	jnc read_root_dir		; Floppy reset OK?
+   109                                  
+   110 0000009C E9C500                  	jmp reboot			; If not, fatal double error
+   111                                  
+   112                                  
+   113                                  search_dir:
+   114 0000009F 61                      	popa
+   115                                  
+   116 000000A0 8CD8                    	mov ax, ds			; Root dir is now in [buffer]
+   117 000000A2 8EC0                    	mov es, ax			; Set DI to this info
+   118 000000A4 BF[0002]                	mov di, buffer
+   119                                  
+   120 000000A7 8B0E[1300]              	mov cx, word [RootDirEntries]	; Search all (224) entries
+   121 000000AB B80000                  	mov ax, 0			; Searching at offset 0
+   122                                  
+   123                                  
+   124                                  next_root_entry:
+   125 000000AE 87CA                    	xchg cx, dx			; We use CX in the inner loop...
+   126                                  
+   127 000000B0 BE[B601]                	mov si, kern_filename		; Start searching for kernel filename
+   128 000000B3 B90B00                  	mov cx, 11
+   129 000000B6 F3A6                    	rep cmpsb
+   130 000000B8 7415                    	je found_file_to_load		; Pointer DI will be at offset 11
+   131                                  
+   132 000000BA 83C020                  	add ax, 32			; Bump searched entries by 1 (32 bytes per entry)
+   133                                  
+   134 000000BD BF[0002]                	mov di, buffer			; Point to next entry
+   135 000000C0 01C7                    	add di, ax
+   136                                  
+   137 000000C2 87D1                    	xchg dx, cx			; Get the original CX back
+   138 000000C4 E2E8                    	loop next_root_entry
+   139                                  
+   140 000000C6 BE[E001]                	mov si, file_not_found		; If kernel is not found, bail out
+   141 000000C9 E8A200                  	call print_string
+   142 000000CC E99500                  	jmp reboot
+   143                                  
+   144                                  
+   145                                  found_file_to_load:			; Fetch cluster and load FAT into RAM
+   146 000000CF 268B450F                	mov ax, word [es:di+0Fh]	; Offset 11 + 15 = 26, contains 1st cluster
+   147 000000D3 A3[F701]                	mov word [cluster], ax
+   148                                  
+   149 000000D6 B80100                  	mov ax, 1			; Sector 1 = first sector of first FAT
+   150 000000D9 E8AF00                  	call l2hts
+   151                                  
+   152 000000DC BF[0002]                	mov di, buffer			; ES:BX points to our buffer
+   153 000000DF 89FB                    	mov bx, di
+   154                                  
+   155 000000E1 B402                    	mov ah, 2			; int 13h params: read (FAT) sectors
+   156 000000E3 B009                    	mov al, 9			; All 9 sectors of 1st FAT
+   157                                  
+   158 000000E5 60                      	pusha				; Prepare to enter loop
+   159                                  
+   160                                  
+   161                                  read_fat:
+   162 000000E6 61                      	popa				; In case registers are altered by int 13h
+   163 000000E7 60                      	pusha
+   164                                  
+   165 000000E8 F9                      	stc
+   166 000000E9 CD13                    	int 13h				; Read sectors using the BIOS
+   167                                  
+   168 000000EB 730D                    	jnc read_fat_ok			; If read went OK, skip ahead
+   169 000000ED E88C00                  	call reset_floppy		; Otherwise, reset floppy controller and try again
+   170 000000F0 73F4                    	jnc read_fat			; Floppy reset OK?
+   171                                  
+   172                                  ; ******************************************************************
+   173                                  fatal_disk_error:
+   174                                  ; ******************************************************************
+   175 000000F2 BE[C101]                	mov si, disk_error		; If not, print error message and reboot
+   176 000000F5 E87600                  	call print_string
+   177 000000F8 EB6A                    	jmp reboot			; Fatal double error
+   178                                  
+   179                                  
+   180                                  read_fat_ok:
+   181 000000FA 61                      	popa
+   182                                  
+   183 000000FB B80020                  	mov ax, 2000h			; Segment where we'll load the kernel
+   184 000000FE 8EC0                    	mov es, ax
+   185 00000100 BB0000                  	mov bx, 0
+   186                                  
+   187 00000103 B402                    	mov ah, 2			; int 13h floppy read params
+   188 00000105 B001                    	mov al, 1
+   189                                  
+   190 00000107 50                      	push ax				; Save in case we (or int calls) lose it
+   191                                  
+   192                                  
+   193                                  ; Now we must load the FAT from the disk. Here's how we find out where it starts:
+   194                                  ; FAT cluster 0 = media descriptor = 0F0h
+   195                                  ; FAT cluster 1 = filler cluster = 0FFh
+   196                                  ; Cluster start = ((cluster number) - 2) * SectorsPerCluster + (start of user)
+   197                                  ;               = (cluster number) + 31
+   198                                  
+   199                                  load_file_sector:
+   200 00000108 A1[F701]                	mov ax, word [cluster]		; Convert sector to logical
+   201 0000010B 83C01F                  	add ax, 31
+   202                                  
+   203 0000010E E87A00                  	call l2hts			; Make appropriate params for int 13h
+   204                                  
+   205 00000111 B80020                  	mov ax, 2000h			; Set buffer past what we've already read
+   206 00000114 8EC0                    	mov es, ax
+   207 00000116 8B1E[F901]              	mov bx, word [pointer]
+   208                                  
+   209 0000011A 58                      	pop ax				; Save in case we (or int calls) lose it
+   210 0000011B 50                      	push ax
+   211                                  
+   212 0000011C F9                      	stc
+   213 0000011D CD13                    	int 13h
+   214                                  
+   215 0000011F 7305                    	jnc calculate_next_cluster	; If there's no error...
+   216                                  
+   217 00000121 E85800                  	call reset_floppy		; Otherwise, reset floppy and retry
+   218 00000124 EBE2                    	jmp load_file_sector
+   219                                  
+   220                                  
+   221                                  	; In the FAT, cluster values are stored in 12 bits, so we have to
+   222                                  	; do a bit of maths to work out whether we're dealing with a byte
+   223                                  	; and 4 bits of the next byte -- or the last 4 bits of one byte
+   224                                  	; and then the subsequent byte!
+   225                                  
+   226                                  calculate_next_cluster:
+   227 00000126 A1[F701]                	mov ax, [cluster]
+   228 00000129 BA0000                  	mov dx, 0
+   229 0000012C BB0300                  	mov bx, 3
+   230 0000012F F7E3                    	mul bx
+   231 00000131 BB0200                  	mov bx, 2
+   232 00000134 F7F3                    	div bx				; DX = [cluster] mod 2
+   233 00000136 BE[0002]                	mov si, buffer
+   234 00000139 01C6                    	add si, ax			; AX = word in FAT for the 12 bit entry
+   235 0000013B 3E8B04                  	mov ax, word [ds:si]
+   236                                  
+   237 0000013E 09D2                    	or dx, dx			; If DX = 0 [cluster] is even; if DX = 1 then it's odd
+   238                                  
+   239 00000140 7405                    	jz even				; If [cluster] is even, drop last 4 bits of word
+   240                                  					; with next cluster; if odd, drop first 4 bits
+   241                                  
+   242                                  odd:
+   243 00000142 C1E804                  	shr ax, 4			; Shift out first 4 bits (they belong to another entry)
+   244 00000145 EB03                    	jmp short next_cluster_cont
+   245                                  
+   246                                  
+   247                                  even:
+   248 00000147 25FF0F                  	and ax, 0FFFh			; Mask out final 4 bits
+   249                                  
+   250                                  
+   251                                  next_cluster_cont:
+   252 0000014A A3[F701]                	mov word [cluster], ax		; Store cluster
+   253                                  
+   254 0000014D 3DF80F                  	cmp ax, 0FF8h			; FF8h = end of file marker in FAT12
+   255 00000150 7308                    	jae end
+   256                                  
+   257 00000152 8106[F901]0002          	add word [pointer], 512		; Increase buffer pointer 1 sector length
+   258 00000158 EBAE                    	jmp load_file_sector
+   259                                  
+   260                                  
+   261                                  end:					; We've got the file to load!
+   262 0000015A 58                      	pop ax				; Clean up the stack (AX was pushed earlier)
+   263 0000015B 8A16[F601]              	mov dl, byte [bootdev]		; Provide kernel with boot device info
+   264                                  
+   265 0000015F EA00000020              	jmp 2000h:0000h			; Jump to entry point of loaded kernel!
+   266                                  
+   267                                  
+   268                                  ; ------------------------------------------------------------------
+   269                                  ; BOOTLOADER SUBROUTINES
+   270                                  
+   271                                  reboot:
+   272 00000164 B80000                  	mov ax, 0
+   273 00000167 CD16                    	int 16h				; Wait for keystroke
+   274 00000169 B80000                  	mov ax, 0
+   275 0000016C CD19                    	int 19h				; Reboot the system
+   276                                  
+   277                                  
+   278                                  print_string:				; Output string in SI to screen
+   279 0000016E 60                      	pusha
+   280                                  
+   281 0000016F B40E                    	mov ah, 0Eh			; int 10h teletype function
+   282                                  
+   283                                  .repeat:
+   284 00000171 AC                      	lodsb				; Get char from string
+   285 00000172 3C00                    	cmp al, 0
+   286 00000174 7404                    	je .done			; If char is zero, end of string
+   287 00000176 CD10                    	int 10h				; Otherwise, print it
+   288 00000178 EBF7                    	jmp short .repeat
+   289                                  
+   290                                  .done:
+   291 0000017A 61                      	popa
+   292 0000017B C3                      	ret
+   293                                  
+   294                                  
+   295                                  reset_floppy:		; IN: [bootdev] = boot device; OUT: carry set on error
+   296 0000017C 50                      	push ax
+   297 0000017D 52                      	push dx
+   298 0000017E B80000                  	mov ax, 0
+   299 00000181 8A16[F601]              	mov dl, byte [bootdev]
+   300 00000185 F9                      	stc
+   301 00000186 CD13                    	int 13h
+   302 00000188 5A                      	pop dx
+   303 00000189 58                      	pop ax
+   304 0000018A C3                      	ret
+   305                                  
+   306                                  
+   307                                  l2hts:			; Calculate head, track and sector settings for int 13h
+   308                                  			; IN: logical sector in AX, OUT: correct registers for int 13h
+   309 0000018B 53                      	push bx
+   310 0000018C 50                      	push ax
+   311                                  
+   312 0000018D 89C3                    	mov bx, ax			; Save logical sector
+   313                                  
+   314 0000018F BA0000                  	mov dx, 0			; First the sector
+   315 00000192 F736[1A00]              	div word [SectorsPerTrack]
+   316 00000196 80C201                  	add dl, 01h			; Physical sectors start at 1
+   317 00000199 88D1                    	mov cl, dl			; Sectors belong in CL for int 13h
+   318 0000019B 89D8                    	mov ax, bx
+   319                                  
+   320 0000019D BA0000                  	mov dx, 0			; Now calculate the head
+   321 000001A0 F736[1A00]              	div word [SectorsPerTrack]
+   322 000001A4 BA0000                  	mov dx, 0
+   323 000001A7 F736[1C00]              	div word [Sides]
+   324 000001AB 88D6                    	mov dh, dl			; Head/side
+   325 000001AD 88C5                    	mov ch, al			; Track
+   326                                  
+   327 000001AF 58                      	pop ax
+   328 000001B0 5B                      	pop bx
+   329                                  
+   330 000001B1 8A16[F601]              	mov dl, byte [bootdev]		; Set correct device
+   331                                  
+   332 000001B5 C3                      	ret
+   333                                  
+   334                                  
+   335                                  ; ------------------------------------------------------------------
+   336                                  ; STRINGS AND VARIABLES
+   337                                  
+   338 000001B6 4B45524E454C202042-     	kern_filename	db "KERNEL  BIN"	; KafeinOS kernel filename
+   338 000001BF 494E               
+   339                                  
+   340 000001C1 466C6F707079206572-     	disk_error	db "Floppy error! Press any key...", 0
+   340 000001CA 726F72212050726573-
+   340 000001D3 7320616E79206B6579-
+   340 000001DC 2E2E2E00           
+   341 000001E0 4B45524E454C2E4249-     	file_not_found	db "KERNEL.BIN not found!", 0
+   341 000001E9 4E206E6F7420666F75-
+   341 000001F2 6E642100           
+   342                                  
+   343 000001F6 00                      	bootdev		db 0 	; Boot device number
+   344 000001F7 0000                    	cluster		dw 0 	; Cluster of the file we want to load
+   345 000001F9 0000                    	pointer		dw 0 	; Pointer into Buffer, for loading kernel
+   346                                  
+   347                                  
+   348                                  ; ------------------------------------------------------------------
+   349                                  ; END OF BOOT SECTOR AND BUFFER START
+   350                                  
+   351 000001FB 00<rep 3h>              	times 510-($-$$) db 0	; Pad remainder of boot sector with zeros
+   352 000001FE 55AA                    	dw 0AA55h		; Boot signature (DO NOT CHANGE!)
+   353                                  
+   354                                  
+   355                                  buffer:				; Disk buffer begins (8k after this, stack starts)
+   356                                  
+   357                                  
+   358                                  ; ==================================================================
+   359                                  

@@ -337,8 +337,8 @@ l2hts:			; Calculate head, track and sector settings for int 13h
 
 	kern_filename	db "KERNEL  BIN"	; KafeinOS kernel filename
 
-	disk_error	db "Floppy error! Press any key...", 0
-	file_not_found	db "KERNEL.BIN not found!", 0
+	disk_error      db "Disk error! Press a key...", 0
+	file_not_found  db "No KERNEL.BIN!", 0
 
 	bootdev		db 0 	; Boot device number
 	cluster		dw 0 	; Cluster of the file we want to load
