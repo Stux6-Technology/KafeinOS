@@ -1,20 +1,22 @@
-; ==================================================================
-; MikeOS -- The Mike Operating System kernel
-; Copyright (C) 2006 - 2022 MikeOS Developers -- see doc/LICENSE.TXT
+
+
+; KafeinOS - Stux6 KafeinOS Project
+; Copyright (C) 2024 - 2026 Stux6 Technology Team
+; by: 2026 Alperen ERKAN <erkanalperen43 [at] gmail.com>
 ;
 ; This is loaded from the drive by BOOTLOAD.BIN, as KERNEL.BIN.
 ; First we have the system call vectors, which start at a static point
 ; for programs to use. Following that is the main kernel code and
 ; then additional system call code is included.
-; ==================================================================
+
 
 
 	BITS 16
 	CPU 386				; pusha offsets depends on a 386 or better
 					; FS and GS require a 386 or better
 
-	%DEFINE MIKEOS_VER '4.7.0'	; OS version number
-	%DEFINE MIKEOS_API_VER 18	; API version for programs to check
+	%DEFINE KAFEINOS_VER '4.7.0'	; OS version number
+	%DEFINE KAFEINOS_API_VER 18	; API version for programs to check
 
 
 	; This is the location in RAM for kernel disk operations, 24K
@@ -28,10 +30,6 @@
 ; OS CALL VECTORS -- Static locations for system call vectors
 ; Note: these cannot be moved, or it'll break the calls!
 
-; The comments show exact locations of instructions in this section,
-; and are used in programs/mikedev.inc so that an external program can
-; use a MikeOS system call without having to know its exact position
-; in the kernel source code...
 
 os_call_vectors:
 	jmp os_main			; 0000h -- Called from bootloader
@@ -122,7 +120,7 @@ os_main:
 
 	mov ax, 2000h			; Set all segments to match where kernel is loaded
 	mov ds, ax			; After this, we don't need to bother with
-	mov es, ax			; segments ever again, as MikeOS and its programs
+	mov es, ax			; segments ever again, as KafeinOS and its programs
 	mov fs, ax			; live entirely in 64K
 	mov gs, ax
 
@@ -201,10 +199,10 @@ option_screen:
 
 	; Data for the above code...
 
-	os_init_msg		db 'Welcome to MikeOS', 0
-	os_version_msg		db 'Version ', MIKEOS_VER, 0
+	os_init_msg		db 'Welcome to KafeinOS', 0
+	os_version_msg		db 'Version ', KafeinOS_VER, 0
 
-	dialog_string_1		db 'Thanks for trying out MikeOS!', 0
+	dialog_string_1		db 'Thanks for trying out KafeinOS!', 0
 	dialog_string_2		db 'Please select an interface: OK for the', 0
 	dialog_string_3		db 'program menu, Cancel for command line.', 0
 
@@ -353,8 +351,8 @@ not_bas_extension:
 	bin_ext			db 'BIN'
 	bas_ext			db 'BAS'
 
-	kerndlg_string_1	db 'Cannot load and execute MikeOS kernel!', 0
-	kerndlg_string_2	db 'KERNEL.BIN is the core of MikeOS, and', 0
+	kerndlg_string_1	db 'Cannot load and execute KafeinOS kernel!', 0
+	kerndlg_string_2	db 'KERNEL.BIN is the core of KafeinOS, and', 0
 	kerndlg_string_3	db 'is not a normal program.', 0
 
 	ext_string_1		db 'Invalid filename extension! You can', 0
