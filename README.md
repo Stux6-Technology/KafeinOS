@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="imageos.jpg" alt="KafeinOS Banner" width="100%">
+  <img src="imageos.png" alt="KafeinOS Banner" width="100%">
 </p>
 
 # KafeinOS
