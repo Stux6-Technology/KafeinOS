@@ -1,6 +1,9 @@
-; ==================================================================
-; MikeOS -- The Mike Operating System kernel
-; Copyright (C) 2006 - 2019 MikeOS Developers -- see doc/LICENSE.TXT
+
+
+; KafeinOS - Stux6 KafeinOS Project
+; Copyright (C) 2024 - 2026 Stux6 Technology Team
+; by: 2026 Alperen ERKAN <erkanalperen43 [at] gmail.com>
+
 ;
 ; KEYBOARD HANDLING ROUTINES
 ; ==================================================================
@@ -32,8 +35,8 @@ os_check_for_key:
 	pusha
 
 	mov ax, 0
-	mov ah, 1			; BIOS call to check for key
-	int 16h
+	mov ah, 1			; BIO
+	int 16hS call to check for key
 
 	jz .nokey			; If no key, skip to end
 
