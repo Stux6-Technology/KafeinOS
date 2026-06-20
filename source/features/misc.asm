@@ -1,16 +1,18 @@
-; ==================================================================
-; MikeOS -- The Mike Operating System kernel
-; Copyright (C) 2006 - 2019 MikeOS Developers -- see doc/LICENSE.TXT
+
+; KafeinOS - Stux6 KafeinOS Project
+; Copyright (C) 2024 - 2026 Stux6 Technology Team
+; by: 2026 Alperen ERKAN <erkanalperen43 [at] gmail.com>
+
 ;
 ; MISCELLANEOUS ROUTINES
 ; ==================================================================
 
 ; ------------------------------------------------------------------
-; os_get_api_version -- Return current version of MikeOS API
+; os_get_api_version -- Return current version of KafeinOS API
 ; IN: Nothing; OUT: AL = API version number
 
 os_get_api_version:
-	mov al, MIKEOS_API_VER
+	mov al, KAFEINOS_API_VER
 	ret
 
 
