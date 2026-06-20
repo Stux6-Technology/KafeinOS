@@ -1,6 +1,6 @@
 ; ==================================================================
-; MikeOS -- The Mike Operating System kernel
-; Copyright (C) 2006 - 2022 MikeOS Developers -- see doc/LICENSE.TXT
+; KafeinOS - Stux6 KafeinOS Project
+; Copyright (C) 2024 - 2026 Stux6 Technolohy Team
 ;
 ; BASIC CODE INTERPRETER (4.5)
 ; ==================================================================
