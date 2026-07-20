@@ -6,7 +6,7 @@ rem Released under the GNU General Public Licence version 3
 rem Send any bugs, ideas or comments to zerokelvinkeyboard@gmail.com
 
 rem Uses the MB++ Library version 4.0
-rem Avaliable at code.google.com/p/mikebasic-applications
+rem Avaliable at code.google.com/p/kafeinbasic-applications
 INCLUDE "MBPP.BAS"
 
 START:
@@ -242,7 +242,7 @@ ABOUT:
        $6 = "Calculator, version 2.1.0|"
   $6 = $6 + "An advanced calculator application|"
   $6 = $6 + "Released under the GNU GPL v3|\7"
-       $7 = "Written in MikeOS BASIC|"
+       $7 = "Written in KafeinOS BASIC|"
   $7 = $7 + "Uses the MB++ Library, version 4.0"
   GOSUB MESBOX
 RETURN

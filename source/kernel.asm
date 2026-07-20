@@ -3,6 +3,7 @@
 ; KafeinOS - Stux6 KafeinOS Project
 ; Copyright (C) 2024 - 2026 Stux6 Technology Team
 ; by: 2026 Alperen ERKAN <erkanalperen54 [at] gmail.com>
+; by: 2026 Muhammed Ekrem GÜLER <mamiekrem1903 [at] gmail.com>
 ;
 ; This is loaded from the drive by BOOTLOAD.BIN, as KERNEL.BIN.
 ; First we have the system call vectors, which start at a static point

@@ -1,4 +1,4 @@
-These are floppy disk and CD-ROM images containing MikeOS and accompanying
+These are floppy disk and CD-ROM images containing KafeinOS and accompanying
 programs. kafeinos.flp and kafeinos.dmg are identical -- the latter can be used
 on Mac OS X without having to change the extension.
 
