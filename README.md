@@ -17,3 +17,9 @@ construction and x86 assembly. Quick getting-started guide: kafeinOS can
 run from a floppy disk or CD-ROM, either on an emulator or a real PC. 
 See the disk_images/ directory for files that you can write to the 
 appropriate media or boot in, for instance, VMware, QEMU or VirtualBox.
+
+### Developer Team
+
+- **Alperen ERKAN:** Lead developer responsible for project/code frameworks, base references and DOS structures.
+
+- **Muhammed Ekrem GÜLER:** An assistant engineer responsible for secondary tasks such as code base development, structural adjustments, and the implementation and testing of applications and Ring-3 architectures, etc.
