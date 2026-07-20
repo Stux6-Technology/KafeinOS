@@ -1,14 +1,14 @@
 ; ------------------------------------------------------------------
-; Simple file manager for MikeOS: copy, delete and rename files
+; Simple file manager for KafeinOS: copy, delete and rename files
 ; ------------------------------------------------------------------
 
 
 	BITS 16
-	%INCLUDE "mikedev.inc"
+	%INCLUDE "kafeindev.inc"
 	ORG 32768
 
 
-	; This is the point used by the disk buffer in the MikeOS kernel
+	; This is the point used by the disk buffer in the KafeinOS kernel
 	; code; it's 24K after the kernel start, and therefore 8K before
 	; the point where programs are loaded (32K):
 
@@ -270,7 +270,7 @@ start:
 	.help_msg1		db 'Select a file operation to perform,', 0
 	.help_msg2		db 'or press the Esc key to exit...', 0
 
-	.title_msg		db 'MikeOS File Manager', 0
+	.title_msg		db 'KafeinOS File Manager', 0
 	.footer_msg		db 'Copy, rename and delete files', 0
 
 	.label_string_text	db 'Filesystem label: ', 0

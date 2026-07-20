@@ -17,7 +17,7 @@ HERE SWAP !			\ set START PFA for first NEXT in 'do_startup'
 \ : START ( -- )		\ Headerless colon definition, less CFA
 ]
 	CR CR ." FORTH version " VERSION
-	CR ." MikeOS API version " D_VER 1+ C@ 0
+	CR ." KafeinOS API version " D_VER 1+ C@ 0
 	<# # # 46 HOLD 2DROP D_VER C@ 0 #S #> TYPE
 	CR PATH .AZ
 	CR OK CR

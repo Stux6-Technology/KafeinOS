@@ -11,7 +11,7 @@
 ; Program is attempt at a lite version of 
 ; VI editor
 ;
-; Updated: 12/31/21 to work in MikeOS
+; Updated: 12/31/21 to work in KafeinOS
 ;
 ; Updated: 01/04/22 fixed bug with scroll_line
 ;                   changed from byte to word
@@ -20,7 +20,7 @@
 ;===============================================
 
     BITS 16
-    %include "mikedev.inc"
+    %include "Kafeindev.inc"
     ORG 32768
 
 ;arrow keys pageup pagedn

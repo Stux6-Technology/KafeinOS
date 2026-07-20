@@ -2,7 +2,7 @@
 ; *
 ; *           Forth operating system for an IBM Compatible PC (ver 1.53)
 ; *                       Copyright (C) 1993-2013 W Nagel
-; *         Copyright (C) 2014-2020 MikeOS Developers -- see doc/LICENSE.TXT
+; *         Copyright (C) 2026 KafeinOS Developers -- see doc/LICENSE.TXT
 ; *
 ; * For the most part it follows the FIG model, Forth-79 standard
 ; * There are differences, however
@@ -31,8 +31,8 @@
 	bs	equ   8		; back space
 	del	equ 127		; 'delete' character
 
-; Compile for PC DOS, .com or boot load, or MikeOS (0/1)
-MikeOS equ 1
+; Compile for PC DOS, .com or boot load, or KafeinOS (0/1)
+KafeinOS equ 1
 Def_Com equ 0
 
 ; A vocabulary is specified by a number between 1 and 15. See 'vocabulary' for a short
@@ -89,10 +89,10 @@ Def_Com equ 0
 	%assign IMM 0		; next word is not immediate, by default
 %endmacro
 
-				; One memory segment for .com, 1/2 segment for MikeOS
+				; One memory segment for .com, 1/2 segment for KafeinOS
 				; future - consider separate stack and/or disk buffer seg
-%if MikeOS
-	%include "mikedev.inc"
+%if KafeinOS
+	%include "Kafeindev.inc"
 	org	0x8000
 %else
 %if Def_Com
@@ -1555,7 +1555,7 @@ HEADING 'SPAN'			; actual # chrs rcvd.
   span1:	dw	0
 
 ; Text input starts at bottom of parameter stack
-; Disk input can start anywhere (MikeOS) or Buf0 (DOS)
+; Disk input can start anywhere (KafeinOS) or Buf0 (DOS)
 HEADING 'TIB'			; ( -- tib )
   TIB:		dw create
   tib1:		dw stack0
@@ -1644,10 +1644,10 @@ HEADING 'LINES'
   _page:        dw      0
   d_off:        dw      0       ; save divide 0 vector here
   d_seg:        dw      0
-%if MikeOS
+%if KafeinOS
   c_off		dw	0	; save ^C vector for restore
   c_seg		dw	0
-  sp_save	dw	0	; save MikeOS SS:SP
+  sp_save	dw	0	; save KafeinOS SS:SP
   ss_save	dw	0
 %endif
 
@@ -1678,7 +1678,7 @@ HEADING 'SYSTEM'
 	mov di,ax
 	mov [es:di],dx
 	mov [es:di+2],cx
-%if MikeOS
+%if KafeinOS
 	mov di,0x8c		; interrupt segment = 0 and offset = 4 * 23h
 	mov cx,[c_seg]		; restore the [ctrl]C vector
 	mov dx,[c_off]
@@ -2169,7 +2169,7 @@ HEADING 'FNAME'
 HEADING 'PATH'
   PATH:         dw create
   path1:        db      'a:\'		; drive
-%if MikeOS = 0
+%if KafeinOS = 0
   path2:        times 126 db 0		; short path
 %endif
 		db      0
@@ -2177,7 +2177,7 @@ HEADING 'PATH'
 HEADING 'FDWORK'
   FDWORK:       dw create
   fdwk1:	dw      0       ; error, handle, or count low word
-%if MikeOS = 0
+%if KafeinOS = 0
   fdwk2:        dw      0       ; high word of count when applicable (.com)
 
 HEADING 'BUF0'			; only 1 disk, 2-part, buffer for now
@@ -2191,10 +2191,10 @@ HEADING 'BUF1'			; break buffer into 2 pieces for DOS
 %endif
 
 ; DOS read cnt (multiple of sector size until end) bytes of open file to address
-; MikeOS will read whole file; make sure it will fit!
+; KafeinOS will read whole file; make sure it will fit!
 HEADING 'FREAD'
 FREAD:		dw $ + 2	; ( adr cnt -- f >> t=error )
-%if MikeOS
+%if KafeinOS
         pop cx                  ; discard count
         pop cx                  ; load address
         pusha
@@ -2254,10 +2254,10 @@ FCLOSE:		dw $ + 2	; ( -- f >> t=error )
 %endif
 
 ; Headerless code definition to write file (usually the system) to disk
-; MikeOS will not overwrite an existing file
+; KafeinOS will not overwrite an existing file
 HEADING 'FWRITE'
 FWRITE:		dw $ + 2	; ( adr cnt -- f >> t=error )
-%if MikeOS
+%if KafeinOS
 	pop cx			; byte count
 	pop bx			; start address
 	pusha
@@ -2276,8 +2276,8 @@ FWRITE:		dw $ + 2	; ( adr cnt -- f >> t=error )
 	jmp fwrt1
 %endif
 
-%if MikeOS
-; MikeOS get file size to ensure it will fit in available memory
+%if KafeinOS
+; KafeinOS get file size to ensure it will fit in available memory
 HEADING 'F_SIZE'
 F_SIZE:		dw $ + 2	; ( -- u >> file size in bytes )
 	pusha
@@ -2323,7 +2323,7 @@ chdir:		dw $ + 2	; ( -- f >> t=error )
 	jmp fcrt1
 %endif
 
-%if MikeOS = 0
+%if KafeinOS = 0
 %if 1
 DOS_ERROR:      dw colon	; ( f -- >> true = print error in fdwork )
 	dw	STAY, dotq
@@ -2591,7 +2591,7 @@ HEADING "G_NAME"		; ( -- )
 	dw      T_CHRS			; test characters in name, may abort
 	dw      EXIT
 
-%if MikeOS = 0
+%if KafeinOS = 0
 FSEL:		dw colon		; ( drive# -- )
 	dw      fsel1, DOS_ERROR        ; will abort if error
 	dw      EXIT
@@ -2657,10 +2657,10 @@ del_cr:		dw $ + 2	; ( a n -- )
 
 ; Get input from the disk file >> DOS 1st read is usually 1024 bytes, after that
 ;  move end of buffer down and get next 512 bytes at end.
-; MikeOS read entire file - it must fit in memory without hurting MikeOS or Forth
+; KafeinOS read entire file - it must fit in memory without hurting KafeinOS or Forth
 GET_FILE:       dw colon		; ( a n -- )
 	dw      two_dup, ERASE, two_dup, FREAD			; ( a n f )
-%if MikeOS
+%if KafeinOS
 	dw      abortq
 	db      19,"Error reading file!"
 %else
@@ -2684,7 +2684,7 @@ STREAM:		dw $ + 2	; ( c -- a ), when exits leaves here+2
 	MOV cx,[n_tib1]		; total number of characters in TIB (last line input)
 	mov ax,[tin1]		; offset into TIB
 	MOV di,[tib1]		; text input buffer address [TIB], 'normal' or disk buffer
-%if MikeOS = 0
+%if KafeinOS = 0
 	test word [hndl1],0xFFFF	; disk stream ?
 	jz do_wrd02			; no, continue normally
 	test byte [qend1],0xff		; already at end of file ?
@@ -2742,7 +2742,7 @@ do_wrd02:		; Entry with just ( c -- a )
 	stosw
 	pop cx
 	pop si          ; retrieve Forth thread pointer
-%if MikeOS = 0
+%if KafeinOS = 0
 	test cx,0x7FFF		; any chrs (word) found ?
 	jnz wrd06		; yes, process normally
 	test word [hndl1],0xFFFF	; disk stream ?
@@ -2755,7 +2755,7 @@ do_wrd02:		; Entry with just ( c -- a )
 	push dx         ; a = here+2 -> current string
 	JMP exit1	; leave parent definition (WORD)
   strm2:
-%if MikeOS = 0
+%if KafeinOS = 0
 	mov cx,512      ; update counts
 	sub [tin1],cx		; >IN
 	sub [n_tib1],cx		; #TIB
@@ -2776,7 +2776,7 @@ HEADING 'WORD'			; ( c -- a >> see STREAM )
   cfa_word:	dw colon
   doword01:			; BEGIN
 	dw      STREAM		; load registers and go to do_wrd02
-%if MikeOS
+%if KafeinOS
 				; STREAM is code extension with parent exit
 	dw      SPACE, ABORT	; should not return, if does quit gracefully
 %else
@@ -2800,7 +2800,7 @@ HASH:                           ; ( na v -- na offset )
 	push ax
 	NEXT
 
-; Note - no address can be less than 0100h (.com) or 8000h (MikeOS)
+; Note - no address can be less than 0100h (.com) or 8000h (KafeinOS)
 FIND_WD:                        ; ( na offset -- na lfa,0 )
                 dw $ + 2
         mov dx,si               ; temporary save (thread) execution pointer
@@ -2830,7 +2830,7 @@ FIND_WD:                        ; ( na offset -- na lfa,0 )
 	mov si,dx		; restore execution pointer
 	NEXT
 
-; LFA since > 0100h (DOS) or 0x8000 (MikeOS), can be used as "found" flag
+; LFA since > 0100h (DOS) or 0x8000 (KafeinOS), can be used as "found" flag
 ; Temporary header for testing. Headerless because differences with standards
 ; HEADING 'FIND'		; ( na -- cfa lfa/f if found || na 0 if not )
   FIND:		dw colon
@@ -3604,7 +3604,7 @@ HEADING 'MS'			; ( n -- )
 
 ; As written there may be a problem with reentrant programs (nesting), ie,
 ;   coming back to a file with an INCLUDE -- needs more testing.
-; MikeOS is not a good fit for nesting.
+; KafeinOS is not a good fit for nesting.
 HEADING "INCLUDE"		; ( -- )
 		dw colon
 	dw      G_NAME					; aborts if not 8.3 name
@@ -3612,7 +3612,7 @@ HEADING "INCLUDE"		; ( -- )
 	dw      TIB, fetch, to_r		; current stream pointer,
 	dw      num_tib, fetch, to_r		;   length
 	dw	tin, fetch, to_r		;   and place in it
-%if MikeOS
+%if KafeinOS
 	dw	PAD, cell, 1200, plus, sp_fetch	; start = pad + 1200, max = SP - 612, avail = max - start
 	dw	OVER, minus, cell, 612, minus	; available (about 20k) will be < 32768
 	dw	F_SIZE, cfa_dup, to_r, u_less	; problem if available < file size
@@ -3627,7 +3627,7 @@ HEADING "INCLUDE"		; ( -- )
 %endif
 	dw      num_tib, false_store		; set at beginning of stream
 	dw	q_END, false_store		;   and not at file end, yet
-%if MikeOS
+%if KafeinOS
 	dw	one, HNDL, w_store		; now streaming from disk file
 	dw	GET_FILE			; get entire file, may abort, update #TIB
 %else
@@ -3636,14 +3636,14 @@ HEADING "INCLUDE"		; ( -- )
 %endif
 	dw      tin, false_store		; start at the beginning of the stream
 	dw	INTERPRET			; process disk file data (stream)
-%if MikeOS = 0
+%if KafeinOS = 0
 	dw      FCLOSE, DOS_ERROR               ; may abort
 %endif
 	dw	r_from, tin, w_store		; restore previous stream position,
 	dw      r_from, num_tib, w_store		;   size
 	dw      r_from, TIB, w_store		;   and pointer
 	dw      two_r_from, q_END, two_store	; restore previous ?END and HNDL
-%if MikeOS = 0
+%if KafeinOS = 0
 	dw      HNDL, fetch, q_branch		; IF nested INCLUDE, go back to previous
 	dw      inc1
 	dw      num_tib, fetch, s_to_d, DNEGATE	; add get previous disk contents
@@ -3660,7 +3660,7 @@ HEADING 'write_exec'
 		dw colon
 	dw	HNDL, fetch			; if write was in INCLUDEd file
 	dw      G_NAME
-%if MikeOS
+%if KafeinOS
 	dw	cell, 8000h
 %else
 	dw	zero, FCREATE, DOS_ERROR	; create a DOS file (handle) - may abort
@@ -3668,7 +3668,7 @@ HEADING 'write_exec'
 	dw      cell, 100h
 %endif
 	dw	HERE, OVER, minus, FWRITE
-%if MikeOS
+%if KafeinOS
 	dw	abortq
 	db	12, "Write Error!"
 %else
@@ -3689,7 +3689,7 @@ HEADING 'ASCII'			; ( -- c )
 	dw      STAY, LITERAL
 	dw      EXIT
 
-HEADING 'D_VER'			; DOS or MikeOS API version - display purposes
+HEADING 'D_VER'			; DOS or KafeinOS API version - display purposes
   D_VER:        dw create
   dver1:        dw      0
 
@@ -3822,7 +3822,7 @@ do_startup:
 	mov ds,ax
 	mov es,ax
 	cli
-%if MikeOS
+%if KafeinOS
 	mov dx,ss
 	mov [sp_save],sp
 	mov [ss_save],dx
@@ -3854,7 +3854,7 @@ do_startup:
 	mov [si],al
 	pop ds
 
-%if MikeOS
+%if KafeinOS
 	call os_get_api_version
 	mov ah,al
 	xor al,al
@@ -3864,7 +3864,7 @@ do_startup:
 %endif
 	mov [dver1],ax
 
-%if MikeOS
+%if KafeinOS
 	mov dl,'a'
 %else
 	MOV ah,19h              ; get/save current disk
@@ -3874,7 +3874,7 @@ do_startup:
 %endif
 	mov [path1],dl
 
-%if MikeOS = 0
+%if KafeinOS = 0
 	mov ah,47h              ; get current directory
 	sub dx,dx
 	mov si, path2
@@ -3895,7 +3895,7 @@ do_startup:
 	mov [es:di+2],dx
 
 	mov di,0x8c		; interrupt segment = 0 and offset = 4 * 23h
-%if MikeOS
+%if KafeinOS
 	mov bx,[es:di]		; get/save current [ctrl]C vector
 	mov dx,[es:di+2]
 	mov [c_off],bx
@@ -3933,10 +3933,10 @@ HEADING 'VERSION'
 start_forth:
 	dw      CR, CR, dotq
 	db      sf01 - $ - 1
-%if MikeOS
-	db      'Copyright (C) 2014-2020 MikeOS Developers -- see doc/LICENSE.TXT'
+%if KafeinOS
+	db      'Copyright (C) 2026 KafeinOS Developers -- see doc/LICENSE.TXT'
 %else
-	db      'Copyright 1993-2013, all rights reserved.'
+	db      'Copyright 2026, all rights reserved.'
 %endif
   sf01:
 	dw      CR, dotq
@@ -3946,8 +3946,8 @@ start_forth:
 	dw      VERSION
 	dw      CR, dotq
 	db      sf03 - $ - 1
-%if MikeOS
-	db      'MikeOS API version '
+%if KafeinOS
+	db      'KafeinOS API version '
 %else
 	db      'DOS version '
 %endif

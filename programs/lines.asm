@@ -19,7 +19,7 @@
 ; ES:DI(A000:0000)
 ;===========================================
 
-%include "mikedev.inc"     ; change this line to use in MikesOS
+%include "kafeindev.inc"     ; change this line to use in KafeinOS
 
 ;----Constants----;
 S_KEY   equ   0x1F73      ; slow down pixel speed

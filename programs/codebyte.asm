@@ -41,7 +41,7 @@
 ;----------------------------------------------------------
 
     BITS 16
-    %include "mikedev.inc"
+    %include "kafeindev.inc"
     ORG 32768
 
     LOAD_DATA   equ 0x9000

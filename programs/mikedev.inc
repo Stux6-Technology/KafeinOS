@@ -1,5 +1,5 @@
 ; ------------------------------------------------------------------
-; Include file for MikeOS program development (API version 18)
+; Include file for KafeinOS program development (API version 18)
 ; Note: processor segments and offsets must match the kernel
 ; ------------------------------------------------------------------
 

@@ -1,7 +1,7 @@
 
 REM ------------------------------------------------
-REM ADVENTURE 2.3 -- By Justin Tokarchuk
-REM For MikeOS and MikeBasic Derivatives
+REM ADVENTURE 2.3 -- By Justin Tokarchuk and Alperen ERKAN and M. Ekrem Güler
+REM For KafeinOS and KafeinBasic Derivatives
 REM ------------------------------------------------
 
 REM VARS:

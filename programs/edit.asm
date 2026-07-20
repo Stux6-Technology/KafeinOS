@@ -1,7 +1,7 @@
 ; ------------------------------------------------------------------
-; MikeOS Text Editor
+; KafeinOS Text Editor
 ;
-; Originally written by Mike Saunders
+; Originally written by KafeinOS Saunders
 ; Modifications added by Pablo González:
 ;  - Add support for more than screen-visible columns
 ;  - Show filename on top
@@ -14,7 +14,7 @@
 
 
 	BITS 16
-	%INCLUDE "mikedev.inc"
+	%INCLUDE "kafeindev.inc"
 	ORG 32768
 
 start:
@@ -1272,7 +1272,7 @@ showlinecolpos:
 ; ------------------------------------------------------------------
 ; Data section
 
-	txt_title_msg	db 'MikeOS Text Editor', 0
+	txt_title_msg	db 'KafeinOS Text Editor', 0
 	txt_footer_msg	db 'Esc Quit  F1 Help  F2 Save  F4 Open  F3 New  F5 Delete line  F8 Run BASIC', 0
 
 	txt_extension	db 'TXT', 0

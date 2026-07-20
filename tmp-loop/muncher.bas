@@ -1,5 +1,5 @@
-rem ** Muncher for MikeOS **
-rem Created by Justin Tokarchuk
+rem ** Muncher for KafeinOS **    ' MikeOS
+rem Created by Justin Tokarchuk and Alperen ERKAN and M. Ekrem GULER
 rem ------------------------------
 
 rem VARS

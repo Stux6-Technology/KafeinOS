@@ -37,8 +37,8 @@
 
 
         bits 16
-        %include "mikedev.inc" ;MikeOS Include file
-        org 32768              ;MikeOS program area
+        %include "kafeindev.inc" ;KafeinOS Include file
+        org 32768              ;KafeinOS program area
 
 start:  call init               ;initialize game
 

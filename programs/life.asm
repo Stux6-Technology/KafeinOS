@@ -18,7 +18,7 @@
 ;============================================================
 
     BITS 16
-    %include "mikedev.inc"
+    %include "kafeindev.inc"
     ORG 32768
 
 

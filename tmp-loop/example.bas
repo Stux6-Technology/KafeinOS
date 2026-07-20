@@ -1,15 +1,15 @@
-rem *** MikeOS BASIC demo ***
+rem *** KafeinOS BASIC demo ***
 
 cls
 
-$1 = "Hex dumper,MikeTron"
+$1 = "Hex dumper,KafeinTron"
 $2 = "Choose a program to run,"
 $3 = "Or press Esc to exit"
 
 listbox $1 $2 $3 a
 
 if a = 1 then goto runhex
-if a = 2 then goto runmiketron
+if a = 2 then goto runkafeintron
 
 cls
 end
@@ -48,15 +48,15 @@ end
 
 
 
-runmiketron:
+runkafeintron:
 
-rem MikeTron Game (MIKETRON.BAS)
+rem KafeinTron Game (KafeinTRON.BAS)
 rem A expanded demo game
-rem Created by Mike Saunders
+rem Created by Mike Saunders and Alperen ERKAN
 rem Extended by Joshua Beck
 rem Version 1.1.1
 rem Send any bug reports or suggested features to:
-rem mikeosdeveloper@gmail.com
+rem stux6.team@gmail.com
 
 cls
 

@@ -1,5 +1,5 @@
 ; ------------------------------------------------------------------
-; Geography-based hangman game for MikeOS
+; Geography-based hangman game for KafeinOS
 ;
 ; At the end of this file you'll see a list of 256 cities (in
 ; lower-case to make the game code simpler). We get one city at
@@ -16,7 +16,7 @@
 
 
 	BITS 16
-	%INCLUDE "mikedev.inc"
+	%INCLUDE "Kafeindev.inc"
 	ORG 32768
 
 
@@ -530,7 +530,7 @@ show_hangman:
 
 
 
-	title_msg	db 'MikeOS Hangman', 0
+	title_msg	db 'KafeinOS Hangman', 0
 	footer_msg	db 'Press Esc to exit', 0
 
 	hint_msg_1	db 'Short word this time, so you', 0

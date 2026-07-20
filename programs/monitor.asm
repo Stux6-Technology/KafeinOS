@@ -1,5 +1,5 @@
 ; ------------------------------------------------------------------
-; Machine code monitor -- by Yutaka Saito and Mike Saunders
+; Machine code monitor -- by Alperen ERKAN and M. Ekrem GULER
 ;
 ; Accepts code in hex format, ORGed to 36864 (4K after where
 ; this program is loaded)
@@ -7,7 +7,7 @@
 
 
 	BITS 16
-	%INCLUDE "mikedev.inc"
+	%INCLUDE "kafeindev.inc"
 	ORG 32768
 
 
@@ -237,7 +237,7 @@ quit:
 
 	buffer		times 16 db 0
 
-	help_msg1	db 'MikeOS machine code tool', 10, 13, 0
+	help_msg1	db 'KafeinOS machine code tool', 10, 13, 0
 	help_msg2	db '(See the User Handbook for a quick guide)', 10, 13, 0
 	help_msg3	db 'Commands: i = input code, x = execute, d = dump RAM, p = poke byte, q = quit', 10, 13, 0
 	help_msg4	db 'Enter instructions in hex, terminated by $ character:', 10, 13, 0
@@ -245,7 +245,7 @@ quit:
 	dump_msg2	db 'Enter number of bytes to show: ', 0
 	poke_msg1	db 'Enter location in RAM (decimal): ', 0
 	poke_msg2	db 'Enter value to poke into this location (decimal): ', 0
-	quit_msg	db 'Quitting to MikeOS...', 10, 13, 0
+	quit_msg	db 'Quitting to KafeinOS...', 10, 13, 0
 
 	main_prompt	db '> ', 0
 	code_prompt	db 'Code: ', 0

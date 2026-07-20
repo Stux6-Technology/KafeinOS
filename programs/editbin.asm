@@ -9,10 +9,10 @@
 ;Updated: 12/05/2016
 ;     BY: John Endler
 ;Updated: 01/04/2017 To add box drawing around dump
-;Updated: 01/03/2022 to run under MikeOS
+;Updated: 01/03/2022 to run under KafeinOS
 ;===============================================
     BITS 16
-    %include "mikedev.inc"
+    %include "kafeindev.inc"
     ORG 32768
 
 ; memory start and end

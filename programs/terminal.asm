@@ -1,5 +1,5 @@
 ; ------------------------------------------------------------------
-; Minicom-like program for MikeOS
+; Minicom-like program for KafeinOS
 ; ------------------------------------------------------------------
 
 
@@ -9,9 +9,9 @@
 ;
 ;	T0:2345:respawn:/sbin/getty/ -L ttyS0 9600 vt100
 ;
-; Connect the serial cable to your MikeOS machine and Linux machine.
-; Start MikeOS and run SERIAL.BIN, then start your Linux box with the
-; above serial terminal entry. On the MikeOS machine, you will see a
+; Connect the serial cable to your KafeinOS machine and Linux machine.
+; Start KafeinOS and run SERIAL.BIN, then start your Linux box with the
+; above serial terminal entry. On the KafeinOS machine, you will see a
 ; familiar Linux login prompt -- you're ready to go! Note that very few
 ; VT100 terminal features are implemented at present, so complicated
 ; programs (eg Emacs) will not display correctly.
@@ -21,7 +21,7 @@
 
 	BITS 16
 
-	%INCLUDE "mikedev.inc"
+	%INCLUDE "kadeindev.inc"
 	ORG 32768
 
 
@@ -189,8 +189,8 @@ erase_sub:
 	warnmsg_1	db 'Serial terminal program -- may lock up', 0
 	warnmsg_2	db 'if you have no serial ports! Proceed?', 0
 
-	start_msg	db 'MikeOS minicom -- Press F8 to quit', 13, 10, 'Connecting via serial at 9600 baud...', 13, 10, 13, 10, 0
-	finish_msg	db 13, 10, 13, 10, 'Exiting MikeOS minicom; press a key to return to MikeOS', 13, 10, 0
+	start_msg	db 'KafeinOS minicom -- Press F8 to quit', 13, 10, 'Connecting via serial at 9600 baud...', 13, 10, 13, 10, 0
+	finish_msg	db 13, 10, 13, 10, 'Exiting KafeinOS minicom; press a key to return to KafeinOS', 13, 10, 0
 
 
 ; ------------------------------------------------------------------

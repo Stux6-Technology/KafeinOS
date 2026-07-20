@@ -1,4 +1,4 @@
-rem *** MikeOS Sudoku 1.0 ***
+rem *** KafeinOS Sudoku 1.0 ***
 
 
 cls
@@ -10,7 +10,7 @@ d = 24
 gosub draw_box
 
 $1 = "Easy,Medium,Hard"
-$2 = "MikeOS Sudoku"
+$2 = "KafeinOS Sudoku"
 $3 = "Choose a difficulty level..."
 listbox $1 $2 $3 z
 
@@ -301,7 +301,7 @@ setup_screen:
 
   ink 7
   move 3 2
-  print "MikeOS Sudoku - Press H for help, or Esc to quit"
+  print "KafeinOS Sudoku - Press H for help, or Esc to quit"
   move 3 4
   print "Cursor keys navigate, Enter inputs a number, zero blanks a square"
 return

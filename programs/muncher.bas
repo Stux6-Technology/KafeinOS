@@ -1,5 +1,5 @@
-rem ** Muncher for MikeOS **
-rem Created by Justin Tokarchuk
+rem ** Muncher for KafeinOS ** ' Muncher for MikeOS
+rem Created by Alperen ERKAN and Justin Tokarchuk
 rem ------------------------------
 
 rem VARS
@@ -12,6 +12,7 @@ rem n = wallpiece counter, gets reloaded by bonus engine
 
 cursor off
 goto logo
+
 
 
 waitforenter:

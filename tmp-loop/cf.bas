@@ -2,7 +2,7 @@ rem Cosmic Flight (CF.BAS)
 rem Created by Joshua Beck
 rem Version 2.0.2
 rem Released under the GNU General Public Licence v3
-rem mail: mikeosdeveloper@gmail.com
+rem mail: stux6.team@gmail.com
 goto start
     
 This program is free software: you can redistribute it and/or modify
