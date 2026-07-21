@@ -18,7 +18,7 @@ run from a floppy disk or CD-ROM, either on an emulator or a real PC.
 See the disk_images/ directory for files that you can write to the 
 appropriate media or boot in, for instance, VMware, QEMU or VirtualBox.
 
-### Developer Team
+## Developer Team
 
 - **Alperen ERKAN:** Lead developer responsible for project/code frameworks, base references and DOS structures.
 
